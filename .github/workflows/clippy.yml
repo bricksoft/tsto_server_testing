@@ -45,7 +45,7 @@ jobs:
 
       - name: Run rust-clippy
         run: cargo clippy
-          --all-features
+          --features ${{matrix.target.feature}}
           --message-format=json | clippy-sarif | tee rust-clippy-${{matrix.target.feature}}.sarif | sarif-fmt
         continue-on-error: true
 
