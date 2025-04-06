@@ -37,18 +37,18 @@ jobs:
         uses: ./.github/actions/setup
         with:
           os: macos-latest
-          target: ${{matrix.target.name}}
+          target: ${{matrix.target}}
           token: "${{ github.token }}"
           cargo_bins: wasm-bindgen-cli clippy-sarif sarif-fmt
 
       - name: Run rust-clippy
         run: cargo clippy
-          --features ${{matrix.target.feature}}
-          --message-format=json | clippy-sarif | tee rust-clippy-${{matrix.target.feature}}.sarif | sarif-fmt
+          --features ${{matrix.feature}}
+          --message-format=json | clippy-sarif | tee rust-clippy-${{matrix.feature}}.sarif | sarif-fmt
         continue-on-error: true
 
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: rust-clippy-${{matrix.target.feature}}.sarif
+          sarif_file: rust-clippy-${{matrix.feature}}.sarif
           wait-for-processing: true
