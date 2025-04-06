@@ -20,11 +20,16 @@ jobs:
     strategy:
       matrix:
         target:
-          - aarch64-apple-darwin
-          - x86_64-apple-darwin
-          - aarch64-unknown-linux-gnu
-          - x86_64-unknown-linux-gnu
-          - x86_64-pc-windows-gnu
+          - name: aarch64-apple-darwin
+            feature: ["web", "server"]
+          - name: x86_64-apple-darwin
+            feature: ["web", "server"]
+          - name: aarch64-unknown-linux-gnu
+            feature: ["web", "server"]
+          - name: x86_64-unknown-linux-gnu
+            feature: ["web", "server"]
+          - name: x86_64-pc-windows-gnu
+            feature: ["web", "server"]
 
     steps:
       - name: Checkout code
@@ -34,18 +39,18 @@ jobs:
         uses: ./.github/actions/setup
         with:
           os: macos-latest
-          target: ${{matrix.target}}
+          target: ${{matrix.target.name}}
           token: "${{ github.token }}"
           cargo_bins: wasm-bindgen-cli clippy-sarif sarif-fmt
 
       - name: Run rust-clippy
         run: cargo clippy
           --all-features
-          --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
+          --message-format=json | clippy-sarif | tee rust-clippy-${{matrix.target.feature}}.sarif | sarif-fmt
         continue-on-error: true
 
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: rust-clippy-results.sarif
+          sarif_file: rust-clippy-${{matrix.target.feature}}.sarif
           wait-for-processing: true
